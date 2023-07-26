@@ -1,5 +1,8 @@
 const Joi = require("joi");
-
+const config = require('config')
+const helmet = require("helmet");
+const morgan = require("morgan");
+const logger = require("./logger");
 const express = require("express");
 const app = express();
 
@@ -10,12 +13,27 @@ const courses = [
 ];
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public"));
+app.use(logger);
+app.use(helmet());
+
+
+//configuration
+console.log('Application Name: ' + config.get('name'))
+console.log('Mail Server: ' + config.get('mail.host'))
+console.log('Mail Password: ' + config.get('mail.password'))
+
+if (app.get("env") === "development") {
+  app.use(morgan("tiny"));
+  console.log("Morgan Enabled...");
+}
 
 app.get("/", (req, res) => {
   res.send("hello this is from express");
 });
-app.get("/api/course", (req, res) => {
-  res.send([1, 2, 3, 4, 5, 6]);
+app.get("/api/courses", (req, res) => {
+  res.send([1, 2, 3, 4, 5, 6, 7]);
 });
 
 //get request
@@ -46,7 +64,8 @@ app.put("/api/courses/:id", (req, res) => {
   const result = validateCourse(req.body);
   const { error } = validateCourse(req.body);
 
-  if (error) return res.status(400).send(JSON.stringify(error.details[0].message));
+  if (error)
+    return res.status(400).send(JSON.stringify(error.details[0].message));
 
   course.name = req.body.name;
   res.send(course);
