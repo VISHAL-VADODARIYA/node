@@ -4,6 +4,7 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const logger = require("./logger");
 const express = require("express");
+const router = require("../Routing with express/routes/posts");
 const app = express();
 
 const courses = [
@@ -17,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use(logger);
 app.use(helmet());
-
+app.use('/',router)
 
 //configuration
 console.log('Application Name: ' + config.get('name'))
